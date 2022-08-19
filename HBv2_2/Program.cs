@@ -270,11 +270,11 @@ namespace HBv2_2
 
                 if (i == maxThreads - 1)
                 {
-                    displayDone = true;
-
                     Console.SetCursorPosition(0, 3 + offset);
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.WriteLine($"Maximum number of threads have been succesfully allocated!");
+
+                    displayDone = true;
                 }
             }
 
