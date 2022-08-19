@@ -8,7 +8,7 @@ using System.Security.Cryptography;
 
 namespace HBv2_2
 {
-    class Program // Bug on display, fix with a boolean and a while loop that waits for it to be true
+    class Program
     {
         // Threads
         static int maxThreads = Environment.ProcessorCount;
@@ -24,9 +24,9 @@ namespace HBv2_2
         static int numOfChars = charsByte.Length;
 
         static int maxLength;
-        static int[,] wordCharVals /*= new int[maxThreads, maxLength]*/;
-        static int[] currentLengths /*= new int[maxThreads].Select(a => a = 1).ToArray()*/;
-        static bool[] finishesArray /*= new bool[maxThreads]*/;
+        static int[,] wordCharVals;
+        static int[] currentLengths;
+        static bool[] finishesArray;
         static int finishes = 0;
         static int hashI;
 
@@ -45,9 +45,8 @@ namespace HBv2_2
                 // Create hash from guess
                 byte[] hashBytes = MD5.Create().ComputeHash(guessBytes);
 
-
                 // Check if hashes match
-                if (hashToCrackBytes.SequenceEqual(hashBytes)/*hashStr == hashToCrack*/)
+                if (hashToCrackBytes.SequenceEqual(hashBytes))
                 {
                     for (int k = 0; k < finishesArray.Length; k++)
                         finishesArray[k] = true;
