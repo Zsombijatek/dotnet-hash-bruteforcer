@@ -23,7 +23,7 @@ namespace HBv2_2
                                     125, 124, 59, 39, 58, 44, 46, 47, 60, 62, 63 };
         static int numOfChars = charsByte.Length;
 
-        static int maxLength;
+        static int maxLength = 6;
         static int[,] wordCharVals;
         static int[] currentLengths;
         static bool[] finishesArray;
@@ -144,6 +144,14 @@ namespace HBv2_2
             }
         }
 
+        static void Warn()
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.Write("!!!  WARNING  !!!   ");
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine("The maximum length for the guesses wasn't given or the value was smaller than the minimum (4), so the default (6) value is being used!");
+        }
+
         static void Exit(string msg = null, int code = 0)
         {
             if (msg != null)
@@ -157,26 +165,30 @@ namespace HBv2_2
         }
 
         static string hashToCrack;
-        static byte[] hashToCrackBytes = new byte[16];
+        static byte[] hashToCrackBytes/* = new byte[16]*/;
         static bool displayDone = false;
         static void Main(string[] args)
         {
-            int offset = 0;
-            if (args.Length > 1)
+            // Input parsing
+            switch (args.Length)
             {
-                if (int.TryParse(args[1], out int result))
-                    maxLength = result;
-            }
-            else
-            {
-                maxLength = 6;
-
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.Write("!!!  WARNING  !!!   ");
-                Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine("The maximum length for the guesses wasn't given, so the default (6) value is being used!");
-
-                offset += 1;
+                case 0:
+                    Exit("No parameters were given!\nPlease use the following syntax: \"hash-brute <hash> <max length of guesses>\"");
+                    break;
+                case 1:
+                    Warn();
+                    break;
+                default:
+                    if (int.TryParse(args[1], out int result) && result >= 4)
+                    {
+                        maxLength = result;
+                        Console.ForegroundColor = ConsoleColor.DarkGreen;
+                        Console.Write("The maximum length is set to: ");
+                        Console.ForegroundColor = ConsoleColor.DarkYellow;
+                        Console.WriteLine(result);
+                    }
+                    else Warn();
+                    break;
             }
             wordCharVals = new int[maxThreads, maxLength];
             currentLengths = new int[maxThreads].Select(a => a = 1).ToArray();
@@ -196,13 +208,14 @@ namespace HBv2_2
                                      .ToArray();
             
 
-            // Input length validation
+            // Hash length validation
             int[] validLengths = { 32, 40, 64, 96, 128 }; // MD5, SHA1, SHA256-384-512
 
             if (!validLengths.Contains(hashToCrack.Length))
                 Exit("Invalid input detected!\nPlease check if there are any typos or if your type of hash is supported!", 1);
 
-            // Charset validation
+
+            // Hash charset validation
             char[] validChars = "0123456789ABCDEF".ToCharArray();
 
             foreach (var character in hashToCrack.ToCharArray())
@@ -229,7 +242,7 @@ namespace HBv2_2
             int i = -1;
             while (++i < maxThreads)
             {
-                Console.SetCursorPosition(1, 2 + offset);
+                Console.SetCursorPosition(1, 3);
 
                 switch (hashToCrack.Length)
                 {
@@ -270,7 +283,7 @@ namespace HBv2_2
 
                 if (i == maxThreads - 1)
                 {
-                    Console.SetCursorPosition(0, 3 + offset);
+                    Console.SetCursorPosition(0, 4);
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.WriteLine($"Maximum number of threads have been succesfully allocated!");
 
