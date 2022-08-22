@@ -5,7 +5,7 @@
 
 ## <span style="color:#3ca11d">1. Description of the program</span>
 
-+ The program is written in **`C#`** and ***only*** uses `CPU` threads (all available threads).
++ The program is written in **`C#`** using the `.NET Core 3.1 Framework` and ***only*** uses `CPU` threads (all available threads).
 + It creates every possible combination from the given hardcoded charset which contains `90` characters including:
   - ***Numbers***
   - ***Letters***: All lowercase and uppercase letters of the english alphabet
