@@ -165,7 +165,7 @@ namespace HBv2_2
         }
 
         static string hashToCrack;
-        static byte[] hashToCrackBytes/* = new byte[16]*/;
+        static byte[] hashToCrackBytes;
         static bool displayDone = false;
         static void Main(string[] args)
         {
@@ -194,6 +194,7 @@ namespace HBv2_2
             currentLengths = new int[maxThreads].Select(a => a = 1).ToArray();
             finishesArray = new bool[maxThreads];
 
+
             /// For more interaction
             ///do 
             ///{
@@ -202,18 +203,12 @@ namespace HBv2_2
             ///} while (hashToCrack == "");
             ///
             hashToCrack = args[0].ToUpper();
-            hashToCrackBytes = Enumerable.Range(0, hashToCrack.Length)
-                                     .Where(x => x % 2 == 0)
-                                     .Select(x => Convert.ToByte(hashToCrack.Substring(x, 2), 16))
-                                     .ToArray();
-            
 
             // Hash length validation
             int[] validLengths = { 32, 40, 64, 96, 128 }; // MD5, SHA1, SHA256-384-512
 
             if (!validLengths.Contains(hashToCrack.Length))
                 Exit("Invalid input detected!\nPlease check if there are any typos or if your type of hash is supported!", 1);
-
 
             // Hash charset validation
             char[] validChars = "0123456789ABCDEF".ToCharArray();
@@ -226,6 +221,12 @@ namespace HBv2_2
                     break;
                 }
             }
+
+            hashToCrackBytes = Enumerable.Range(0, hashToCrack.Length)
+                                     .Where(x => x % 2 == 0)
+                                     .Select(x => Convert.ToByte(hashToCrack.Substring(x, 2), 16)) // Can it crash, if the chars are ?
+                                     .ToArray();
+            
 
             Console.ForegroundColor = ConsoleColor.Magenta;
             Console.Write($"Available logical cores: ");
