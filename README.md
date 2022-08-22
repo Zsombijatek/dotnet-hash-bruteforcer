@@ -13,7 +13,7 @@
 + This is achieved by starting to generate guesses with the lowest possible length and working its way up to the given max. length for the words.
 + The default max. length is `6` which can be changed by the user from `4-∞`
 + The guesses to be checked are distributed evenly, based on the serial number of the given thread and the maximum available threads:
-  +  `E.g.`:    If the thread's serial number is `2` and the max. available threads is `4`<br>
+  +  ***E.g.***:    If the thread's serial number is `2` and the max. available threads is `4`<br>
                 --> The `2nd` guess will be given to this thread at start and after that the `6th` guess will be given.
 
 ## 2. Syntax
