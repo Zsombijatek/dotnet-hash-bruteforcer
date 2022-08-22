@@ -2,9 +2,9 @@
 using System.Text;
 using System.Linq;
 using System.Threading;
-using System.Text.Encodings;
 using System.Collections.Generic;
 using System.Security.Cryptography;
+using System.Diagnostics;
 
 namespace HBv2_2
 {
@@ -101,6 +101,8 @@ namespace HBv2_2
 
         static void WriteResult(bool found, byte[] hashBytes = null, string guessStr = null)
         {
+            sw.Stop();
+
             if (found)
             {
                 while (!displayDone) ;
@@ -133,6 +135,13 @@ namespace HBv2_2
                 Console.Write(guessStr);
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("\"");
+
+
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.Write("Elapsed time: ");
+                Console.ForegroundColor = ConsoleColor.Red;
+                if (sw.Elapsed.Days > 0) Console.Write($"{sw.Elapsed.Days} days ");
+                Console.WriteLine(sw.Elapsed);
             }
             else
             {
@@ -167,6 +176,7 @@ namespace HBv2_2
         static string hashToCrack;
         static byte[] hashToCrackBytes;
         static bool displayDone = false;
+        static Stopwatch sw = new Stopwatch();
         static void Main(string[] args)
         {
             // Input parsing
@@ -224,7 +234,7 @@ namespace HBv2_2
 
             hashToCrackBytes = Enumerable.Range(0, hashToCrack.Length)
                                      .Where(x => x % 2 == 0)
-                                     .Select(x => Convert.ToByte(hashToCrack.Substring(x, 2), 16)) // Can it crash, if the chars are ?
+                                     .Select(x => Convert.ToByte(hashToCrack.Substring(x, 2), 16))
                                      .ToArray();
             
 
@@ -239,6 +249,9 @@ namespace HBv2_2
             Console.ForegroundColor = ConsoleColor.DarkGreen;
             Console.Write("[" + new String(' ', 10) + "]  0%");
             Console.ForegroundColor = ConsoleColor.Cyan;
+
+            // Timer
+            sw.Start();
 
             int i = -1;
             while (++i < maxThreads)
