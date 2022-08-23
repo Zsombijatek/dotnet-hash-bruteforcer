@@ -23,7 +23,7 @@ hash-brute <hash> <maxlength>
 ```
 | Argument | Variable type | Description |
 | -------- | ------------- | ----------- |
-| hash     | string        | The hash to be cracked by the program. Currently accepted types: MD5, SHA1, SHA-256-384-512 |
+| hash     | string        | The hash to be cracked by the program. Currently accepted types: MD5, SHA1, SHA256, SHA384, SHA512 |
 | maxlength| int           | The maximum length of the guesses made by the program. |
 
 ## <span style="color:#3ca11d">3. How the program works</span>
@@ -44,4 +44,4 @@ hash-brute <hash> <maxlength>
     + The optional ***maxlength*** argument based on wether it's convertable to an integer and if it's bigger or equal to 4.<br>
     --> If so, then the maxlength is set to the custom value.
 3. The hash then is converted from its hexadecimal format and placed into the `byte[] hashToCrackBytes` array.
-4. Based on the `hashToCrack`'s length the proper method is assigned to the available threads.
+4. Based on the `hashToCrack`'s length the proper index is placed into `hashI`, then the correct hash computing method is assigned to the `HashingHandler hhandler` delegate on the available threads.
