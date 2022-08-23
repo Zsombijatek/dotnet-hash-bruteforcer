@@ -275,29 +275,30 @@ namespace HBv2_2
             // Timer
             sw.Start();
 
+            switch (hashToCrack.Length)
+            {
+                case 32:
+                    hashI = 0;
+                    break;
+                case 40:
+                    hashI = 1;
+                    break;
+                case 64:
+                    hashI = 2;
+                    break;
+                case 96:
+                    hashI = 3;
+                    break;
+                case 128:
+                    hashI = 4;
+                    break;
+            }
+
             int i = -1;
             while (++i < maxThreads)
             {
                 Console.SetCursorPosition(1, 3);
 
-                switch (hashToCrack.Length)
-                {
-                    case 32:
-                        hashI = 0;
-                        break;
-                    case 40:
-                        hashI = 1;
-                        break;
-                    case 64:
-                        hashI = 2;
-                        break;
-                    case 96:
-                        hashI = 3;
-                        break;
-                    case 128:
-                        hashI = 4;
-                        break;
-                }
                 threads.Add(new Thread(Bruteforcer));
                 threads[i].Start(i);
                 
