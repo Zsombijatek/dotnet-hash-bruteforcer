@@ -8,6 +8,8 @@ using System.Diagnostics;
 
 namespace HBv2_2
 {
+    public delegate byte[] HashingHandler(byte[] guessBytes);
+
     class Program
     {
         // Threads
@@ -30,8 +32,28 @@ namespace HBv2_2
         static int finishes = 0;
         static int hashI;
 
-        static void BF_MD5(object i)
+        static void Bruteforcer(object i)
         {
+            HashingHandler hhandler;
+            switch (hashI)
+            {
+                case 0:
+                    hhandler = MD5.Create().ComputeHash;
+                    break;
+                case 1:
+                    hhandler = SHA1.Create().ComputeHash;
+                    break;
+                case 2:
+                    hhandler = SHA256.Create().ComputeHash;
+                    break;
+                case 3:
+                    hhandler = SHA384.Create().ComputeHash;
+                    break;
+                default:
+                    hhandler = SHA512.Create().ComputeHash;
+                    break;
+            }
+
             int indexOfThr = Convert.ToInt32(i);
             wordCharVals[indexOfThr, 0] = indexOfThr;
 
@@ -43,7 +65,7 @@ namespace HBv2_2
                      guessBytes[j] = charsByte[wordCharVals[indexOfThr, j]];
 
                 // Create hash from guess
-                byte[] hashBytes = MD5.Create().ComputeHash(guessBytes);
+                byte[] hashBytes = hhandler(guessBytes);
 
                 // Check if hashes match
                 if (hashToCrackBytes.SequenceEqual(hashBytes))
@@ -262,25 +284,21 @@ namespace HBv2_2
                 {
                     case 32:
                         hashI = 0;
-                        threads.Add(new Thread(BF_MD5));
                         break;
                     case 40:
                         hashI = 1;
-                        //
                         break;
                     case 64:
                         hashI = 2;
-                        //
                         break;
                     case 96:
                         hashI = 3;
-                        //
                         break;
                     case 128:
                         hashI = 4;
-                        //
                         break;
                 }
+                threads.Add(new Thread(Bruteforcer));
                 threads[i].Start(i);
                 
                 int x = (int)Math.Round((decimal)(i + 1) / maxThreads * 100, 0);
