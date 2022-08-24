@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Text;
 using System.Linq;
 using System.Threading;
@@ -12,6 +12,8 @@ namespace HBv2_2
 
     class Program
     {
+        static int counter = 0;
+
         // Threads
         static int maxThreads = Environment.ProcessorCount;
         static List<Thread> threads = new List<Thread>();
@@ -59,10 +61,11 @@ namespace HBv2_2
 
             while (!finishesArray[indexOfThr])
             {
+                counter++;
                 // Put guess together
                 byte[] guessBytes = new byte[currentLengths[indexOfThr]];
                 for (int j = 0; j < currentLengths[indexOfThr]; j++)
-                     guessBytes[j] = charsByte[wordCharVals[indexOfThr, j]];
+                    guessBytes[j] = charsByte[wordCharVals[indexOfThr, j]];
 
                 // Create hash from guess
                 byte[] hashBytes = hhandler(guessBytes);
@@ -144,7 +147,7 @@ namespace HBv2_2
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.Write("\"");
                 Console.ForegroundColor = ConsoleColor.Cyan;
-                Console.Write(hashStr); 
+                Console.Write(hashStr);
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.Write("\"");
 
@@ -164,6 +167,8 @@ namespace HBv2_2
                 Console.ForegroundColor = ConsoleColor.Red;
                 if (sw.Elapsed.Days > 0) Console.Write($"{sw.Elapsed.Days} days ");
                 Console.WriteLine(sw.Elapsed);
+
+                Console.WriteLine(counter);
             }
             else
             {
@@ -180,7 +185,7 @@ namespace HBv2_2
             Console.ForegroundColor = ConsoleColor.Red;
             Console.Write("!!!  WARNING  !!!   ");
             Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("The maximum length for the guesses wasn't given or the value was smaller than the minimum (4), so the default (6) value is being used!");
+            Console.WriteLine("The maximum length for the guesses was smaller than the minimum (4) value, so the default (6) value is being used!");
         }
 
         static void Exit(string msg = null, int code = 0)
@@ -195,52 +200,13 @@ namespace HBv2_2
             Environment.Exit(code);
         }
 
-        static string hashToCrack;
-        static byte[] hashToCrackBytes;
-        static bool displayDone = false;
-        static Stopwatch sw = new Stopwatch();
-        static void Main(string[] args)
+        static void CheckHash()
         {
-            // Input parsing
-            switch (args.Length)
-            {
-                case 0:
-                    Exit("No parameters were given!\nPlease use the following syntax: \"hash-brute <hash> <max length of guesses>\"");
-                    break;
-                case 1:
-                    Warn();
-                    break;
-                default:
-                    if (int.TryParse(args[1], out int result) && result >= 4)
-                    {
-                        maxLength = result;
-                        Console.ForegroundColor = ConsoleColor.DarkGreen;
-                        Console.Write("The maximum length is set to: ");
-                        Console.ForegroundColor = ConsoleColor.DarkYellow;
-                        Console.WriteLine(result);
-                    }
-                    else Warn();
-                    break;
-            }
-            wordCharVals = new int[maxThreads, maxLength];
-            currentLengths = new int[maxThreads].Select(a => a = 1).ToArray();
-            finishesArray = new bool[maxThreads];
-
-
-            /// For more interaction
-            ///do 
-            ///{
-            ///    Console.Write("Please enter your hash to crack: ");
-            ///    hashToCrack = Console.ReadLine().Split(' ')[0];
-            ///} while (hashToCrack == "");
-            ///
-            hashToCrack = args[0].ToUpper();
-
             // Hash length validation
             int[] validLengths = { 32, 40, 64, 96, 128 }; // MD5, SHA1, SHA256-384-512
 
             if (!validLengths.Contains(hashToCrack.Length))
-                Exit("Invalid input detected!\nPlease check if there are any typos or if your type of hash is supported!", 1);
+                Exit("Invalid hash detected!\nPlease check if there are any typos or if your type of hash is supported!", 1);
 
             // Hash charset validation
             char[] validChars = "0123456789ABCDEF".ToCharArray();
@@ -249,22 +215,102 @@ namespace HBv2_2
             {
                 if (!validChars.Contains(character))
                 {
-                    Exit("Invalid input detected!\nYour input contains non-hexadecimal values, please check for any typos!", 1);
+                    Exit("Invalid hash detected!\nYour hash contains non-hexadecimal values, please check for any typos!", 1);
                     break;
                 }
             }
+        }
 
-            hashToCrackBytes = Enumerable.Range(0, hashToCrack.Length)
-                                     .Where(x => x % 2 == 0)
-                                     .Select(x => Convert.ToByte(hashToCrack.Substring(x, 2), 16))
-                                     .ToArray();
+        static string hashToCrack;
+        static byte[] hashToCrackBytes;
+        static bool displayDone = false;
+        static Stopwatch sw = new Stopwatch();
+        static void Main(string[] args)
+        {
+            string instruction = "Use --help or read README.md for more information on the syntax!";
+
+            // Input parsing v2 // [-i <hash>] [-m <maxl>] [-s <filename>] [--help]
+            if (args.Length == 0) 
+                Exit($"No parameters were given.\n{instruction}", 1);
+
+            var args2 = new List<string>(args);
+            bool argI = false/*, argS = false*/;
+            while (args2.Count > 0)
+            {
+                switch (args2[0])
+                {
+                    case "-i":
+                        if (args2.Count() < 2) Exit($"There were no hash given after -i.\n{instruction}", 1);
+
+                        hashToCrack = args2[1].ToUpper();
+                        CheckHash();
+                        hashToCrackBytes = Enumerable.Range(0, hashToCrack.Length)
+                                 .Where(x => x % 2 == 0)
+                                 .Select(x => Convert.ToByte(hashToCrack.Substring(x, 2), 16))
+                                 .ToArray();
+
+                        argI = true;
+                        args2.RemoveRange(0, 2);
+                        break;
+                    case "-m":
+                        if (!argI) 
+                            Exit($"Incorrect usage of -m. The hash you want to crack must be given, before specifying the max length!\n{instruction}", 1);
+                        if (args2.Count() < 2) 
+                            Exit($"Incorrect usage of -m. An integer value, which must be at least 4, must be given after -m!\n{instruction}", 1);
+                        if (!int.TryParse(args2[1], out int result))
+                            Exit($"Incorrect value given for -m. The value must be an integer!\n{instruction}", 1);
+                        ///{ For later use, when "unlimited" maxLength will be introduced.
+                        ///    if (args2[1] == "-") 
+                        ///        maxLength = Int32.MaxValue;
+                        ///    else 
+                        ///        Exit("Incorrect value given for -m. The value must be an integer or '-'!\nUse --help or read README.md for more information on the syntax!", 1);
+                        ///}
+
+                        if (result >= 4)
+                        {
+                            maxLength = result;
+
+                            Console.ForegroundColor = ConsoleColor.DarkGreen;
+                            Console.Write("The maximum length is set to: ");
+                            Console.ForegroundColor = ConsoleColor.DarkYellow;
+                            Console.WriteLine(result);
+                        }
+                        else Warn();
+
+                        args2.RemoveRange(0, 2);
+                        break;
+                    ///case "-s":
+                    ///
+                    ///    break;
+                    ///case "-t":
+                    ///
+                    ///    break;
+                    ///case "--help":
+                    ///    // Display --help
+                    ///    Exit();
+                    ///    break;
+                    default:
+                        Exit($"Invalid arguments were given.\n{instruction}", 1);
+                        break;
+                }
+            }
+            wordCharVals = new int[maxThreads, maxLength];
+            currentLengths = new int[maxThreads].Select(a => a = 1).ToArray();
+            finishesArray = new bool[maxThreads];
+
+            /// For more interaction
+            ///do 
+            ///{
+            ///    Console.Write("Please enter your hash to crack: ");
+            ///    hashToCrack = Console.ReadLine().Split(' ')[0];
+            ///} while (hashToCrack == "");
+            ///
             
-
             Console.ForegroundColor = ConsoleColor.Magenta;
             Console.Write($"Available logical cores: ");
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine(maxThreads);
-            
+
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("Starting allocation...");
 
@@ -301,7 +347,7 @@ namespace HBv2_2
 
                 threads.Add(new Thread(Bruteforcer));
                 threads[i].Start(i);
-                
+
                 int x = (int)Math.Round((decimal)(i + 1) / maxThreads * 100, 0);
                 var s = new String('-', x / 10);
                 Console.ForegroundColor = ConsoleColor.Cyan;
