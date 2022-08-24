@@ -12,6 +12,11 @@ namespace HBv2_2
 
     class Program
     {
+        static string help = "Usage: hash-brute [option(s)]\n" +
+                             " The options are:\n" +
+                            $"   {"-i <hash>", -15} The hash to be cracked by the application. Not optional yet.\n" +
+                            $"   {"-m <max_length>", -15} The maximum number of characters the application can use to generate guesses. Optional, if used, must be after -i";
+
         // Threads
         static int maxThreads = Environment.ProcessorCount;
         static List<Thread> threads = new List<Thread>();
@@ -275,10 +280,11 @@ namespace HBv2_2
                     ///case "-t":
                     ///
                     ///    break;
-                    ///case "--help":
-                    ///    // Display --help
-                    ///    Exit();
-                    ///    break;
+                    case "--help":
+                        // Display --help
+                        Console.WriteLine(help);
+                        Exit();
+                        break;
                     default:
                         Exit($"Invalid arguments were given.\n{instruction}", 1);
                         break;
