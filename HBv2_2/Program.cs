@@ -12,8 +12,6 @@ namespace HBv2_2
 
     class Program
     {
-        static int counter = 0;
-
         // Threads
         static int maxThreads = Environment.ProcessorCount;
         static List<Thread> threads = new List<Thread>();
@@ -61,7 +59,6 @@ namespace HBv2_2
 
             while (!finishesArray[indexOfThr])
             {
-                counter++;
                 // Put guess together
                 byte[] guessBytes = new byte[currentLengths[indexOfThr]];
                 for (int j = 0; j < currentLengths[indexOfThr]; j++)
@@ -167,8 +164,6 @@ namespace HBv2_2
                 Console.ForegroundColor = ConsoleColor.Red;
                 if (sw.Elapsed.Days > 0) Console.Write($"{sw.Elapsed.Days} days ");
                 Console.WriteLine(sw.Elapsed);
-
-                Console.WriteLine(counter);
             }
             else
             {
