@@ -175,12 +175,12 @@ namespace HBv2_2
             }
         }
 
-        static void Warn()
+        static void Warn(string msg)
         {
             Console.ForegroundColor = ConsoleColor.Red;
             Console.Write("!!!  WARNING  !!!   ");
             Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("The maximum length for the guesses was smaller than the minimum (4) value, so the default (6) value is being used!");
+            Console.WriteLine(msg);
         }
 
         static void Exit(string msg = null, int code = 0)
@@ -270,7 +270,7 @@ namespace HBv2_2
                             Console.ForegroundColor = ConsoleColor.DarkYellow;
                             Console.WriteLine(result);
                         }
-                        else Warn();
+                        else Warn("The given max length for the guesses is smaller than the minimum (4) value therefore, the default (6) value is being used!");
 
                         args2.RemoveRange(0, 2);
                         break;
