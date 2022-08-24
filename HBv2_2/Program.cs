@@ -313,8 +313,6 @@ namespace HBv2_2
             Console.Write("[" + new String(' ', 10) + "]  0%");
             Console.ForegroundColor = ConsoleColor.Cyan;
 
-            // Timer
-            sw.Start();
 
             switch (hashToCrack.Length)
             {
@@ -334,6 +332,9 @@ namespace HBv2_2
                     hashI = 4;
                     break;
             }
+
+            // Timer
+            sw.Start();
 
             int i = -1;
             while (++i < maxThreads)
