@@ -225,10 +225,17 @@ namespace HBv2_2
             string instruction = "Use --help or read README.md for more information on the syntax!";
 
             // Input parsing v2 // GOALS: [-i <hash>] [-m <maxl>] [-s <filename>] [-t <hash type> (if -i wasn't specified)] [--help]
-            if (args.Length == 0) 
+            if (args.Length == 0)
                 Exit($"No parameters were given.\n{instruction}", 1);
 
+
             var args2 = new List<string>(args);
+            if (args2.Contains("--help"))
+            {
+                Console.WriteLine(help);
+                Exit();
+            }
+
             bool argI = false/*, argS = false*/;
             while (args2.Count > 0)
             {
@@ -280,11 +287,6 @@ namespace HBv2_2
                     ///case "-t":
                     ///
                     ///    break;
-                    case "--help":
-                        // Display --help
-                        Console.WriteLine(help);
-                        Exit();
-                        break;
                     default:
                         Exit($"Invalid arguments were given.\n{instruction}", 1);
                         break;
