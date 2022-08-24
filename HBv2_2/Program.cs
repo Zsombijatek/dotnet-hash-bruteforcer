@@ -206,14 +206,9 @@ namespace HBv2_2
             // Hash charset validation
             char[] validChars = "0123456789ABCDEF".ToCharArray();
 
-            foreach (var character in hashToCrack.ToCharArray())
-            {
-                if (!validChars.Contains(character))
-                {
-                    Exit("Invalid hash detected!\nYour hash contains non-hexadecimal values, please check for any typos!", 1);
-                    break;
-                }
-            }
+            int wrong = hashToCrack.Where(a => !validChars.Contains(a)).Count();
+            if (wrong > 0) 
+                Exit("Invalid hash detected!\nYour hash contains non-hexadecimal values, please check for any typos!", 1);
         }
 
         static string hashToCrack;
@@ -224,7 +219,7 @@ namespace HBv2_2
         {
             string instruction = "Use --help or read README.md for more information on the syntax!";
 
-            // Input parsing v2 // [-i <hash>] [-m <maxl>] [-s <filename>] [--help]
+            // Input parsing v2 // GOALS: [-i <hash>] [-m <maxl>] [-s <filename>] [-t <hash type> (if -i wasn't specified)] [--help]
             if (args.Length == 0) 
                 Exit($"No parameters were given.\n{instruction}", 1);
 
