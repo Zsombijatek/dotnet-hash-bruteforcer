@@ -31,7 +31,7 @@ namespace HBv2_2
         static int numOfChars = charsByte.Length;
 
         static int maxLength = 6;
-        static int[,] wordCharVals;
+        static List<int>[] wordCharVals;
         static int[] currentLengths;
         static bool[] finishesArray;
         static int finishes = 0;
@@ -60,14 +60,14 @@ namespace HBv2_2
             }
 
             int indexOfThr = Convert.ToInt32(i);
-            wordCharVals[indexOfThr, 0] = indexOfThr;
+            wordCharVals[indexOfThr][0] = indexOfThr;
 
             while (!finishesArray[indexOfThr])
             {
                 // Put guess together
                 byte[] guessBytes = new byte[currentLengths[indexOfThr]];
                 for (int j = 0; j < currentLengths[indexOfThr]; j++)
-                    guessBytes[j] = charsByte[wordCharVals[indexOfThr, j]];
+                    guessBytes[j] = charsByte[wordCharVals[indexOfThr][j]];
 
                 // Create hash from guess
                 byte[] hashBytes = hhandler(guessBytes);
@@ -82,22 +82,24 @@ namespace HBv2_2
                 }
 
                 // 2.
-                wordCharVals[indexOfThr, currentLengths[indexOfThr] - 1] += maxThreads;
+                wordCharVals[indexOfThr][currentLengths[indexOfThr] - 1] += maxThreads;
 
                 // 3.
-                if (wordCharVals[indexOfThr, currentLengths[indexOfThr] - 1] >= numOfChars)
+                if (wordCharVals[indexOfThr][currentLengths[indexOfThr] - 1] >= numOfChars)
                 {
-                    wordCharVals[indexOfThr, currentLengths[indexOfThr] - 1] -= numOfChars;
+                    wordCharVals[indexOfThr][currentLengths[indexOfThr] - 1] -= numOfChars;
                     if (currentLengths[indexOfThr] > 1)
                     {
-                        wordCharVals[indexOfThr, currentLengths[indexOfThr] - 2]++;
+                        wordCharVals[indexOfThr][currentLengths[indexOfThr] - 2]++;
                         RecursiveCheck(currentLengths[indexOfThr] - 2, indexOfThr);
                     }
                     else
                     {
                         currentLengths[indexOfThr]++;
-                        wordCharVals[indexOfThr, currentLengths[indexOfThr] - 1] = wordCharVals[indexOfThr, currentLengths[indexOfThr] - 2];
-                        wordCharVals[indexOfThr, currentLengths[indexOfThr] - 2] = 0;
+                        wordCharVals[indexOfThr].Add(0);
+
+                        wordCharVals[indexOfThr][currentLengths[indexOfThr] - 1] = wordCharVals[indexOfThr][currentLengths[indexOfThr] - 2];
+                        wordCharVals[indexOfThr][currentLengths[indexOfThr] - 2] = 0;
                     }
                 }
             }
@@ -105,20 +107,22 @@ namespace HBv2_2
 
         static void RecursiveCheck(int index, int thrI)
         {
-            if (wordCharVals[thrI, index] == numOfChars && index > 0)
+            if (wordCharVals[thrI][index] == numOfChars && index > 0)
             {
-                wordCharVals[thrI, index] = 0;
-                wordCharVals[thrI, index - 1]++;
+                wordCharVals[thrI][index] = 0;
+                wordCharVals[thrI][index - 1]++;
                 RecursiveCheck(index - 1, thrI);
             }
-            else if (wordCharVals[thrI, index/*= 0*/] == numOfChars && currentLengths[thrI] < maxLength)
+            else if (wordCharVals[thrI][index/*= 0*/] == numOfChars && currentLengths[thrI] < maxLength)
             {
                 currentLengths[thrI]++;
-                wordCharVals[thrI, currentLengths[thrI] - 1] = wordCharVals[thrI, currentLengths[thrI] - 2];
-                wordCharVals[thrI, currentLengths[thrI] - 2] = 0;
-                wordCharVals[thrI, index] = 0;
+                wordCharVals[thrI].Add(0);
+
+                wordCharVals[thrI][currentLengths[thrI] - 1] = wordCharVals[thrI][currentLengths[thrI] - 2];
+                wordCharVals[thrI][currentLengths[thrI] - 2] = 0;
+                wordCharVals[thrI][index] = 0;
             }
-            else if (wordCharVals[thrI, index/*= 0*/] == numOfChars)
+            else if (wordCharVals[thrI][index/*= 0*/] == numOfChars)
             {
                 finishes++;
                 if (finishes == maxLength) WriteResult(false);
@@ -292,7 +296,7 @@ namespace HBv2_2
                         break;
                 }
             }
-            wordCharVals = new int[maxThreads, maxLength];
+            wordCharVals = new List<int>[maxThreads].Select(b => b = new List<int>() { 0 }).ToArray();
             currentLengths = new int[maxThreads].Select(a => a = 1).ToArray();
             finishesArray = new bool[maxThreads];
 
