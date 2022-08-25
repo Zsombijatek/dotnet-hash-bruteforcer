@@ -319,7 +319,7 @@ namespace HBv2_2
             Console.ForegroundColor = ConsoleColor.DarkGreen;
             Console.Write("[" + new String(' ', 10) + "]  0%");
             Console.ForegroundColor = ConsoleColor.Cyan;
-
+            Console.CursorVisible = false;
 
             switch (hashToCrack.Length)
             {
@@ -366,8 +366,10 @@ namespace HBv2_2
                 if (i == maxThreads - 1)
                 {
                     Console.SetCursorPosition(0, 4);
+                    Console.CursorVisible = true;
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.WriteLine($"Maximum number of threads have been succesfully allocated!");
+
 
                     displayDone = true;
                 }
