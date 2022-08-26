@@ -186,8 +186,6 @@ namespace HBv2_2
                 string hashStr = sb.ToString();
 
 
-                //string[] hashTypes = { "MD5", "SHA-1", "SHA-256", "SHA-384", "SHA-512" };
-
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine($"{hashTypes[hashI]} match found!");
 
