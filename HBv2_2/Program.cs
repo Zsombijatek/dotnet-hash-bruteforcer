@@ -158,7 +158,7 @@ namespace HBv2_2
 
             string[] hashTypes = { "MD5", "SHA-1", "SHA-256", "SHA-384", "SHA-512" };
 
-            // Write created rainbow tables to files
+            // Write created guess-hash lists to files
             if (argS)
             {
                 var split2 = outputName.Split('.');
