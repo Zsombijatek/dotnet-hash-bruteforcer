@@ -279,13 +279,18 @@ namespace HBv2_2
                 Exit();
             }
 
+            bool argnDefValSet = false;
             while (args2.Count > 0)
             {
                 switch (args2[0])
                 {
                     case "-i":
-                        if (args2.Count() < 2) 
+                        int k1 = 2;
+                        if (args2.Count() < 2)
+                        {
                             Exit($"There were no hash given after -i.\n{instruction}", 1);
+                            k1 = 1;
+                        }
 
                         hashToCrack = args2[1].ToUpper();
                         CheckHash();
@@ -295,12 +300,12 @@ namespace HBv2_2
                                  .ToArray();
 
                         argI = true;
-                        args2.RemoveRange(0, 2);
+                        args2.RemoveRange(0, k1);
                         break;
                     case "-m":
-                        if (!argI) 
+                        if (!argI)
                             Exit($"Incorrect usage of -m. The hash you want to crack must be given, before specifying the max length!\n{instruction}", 1);
-                        if (args2.Count() < 2) 
+                        if (args2.Count() < 2)
                             Exit($"Incorrect usage of -m. An integer value, which must be at least 4, must be given after -m!\n{instruction}", 1);
                         if (!int.TryParse(args2[1], out int result))
                             Exit($"Incorrect value given for -m. The value must be an integer!\n{instruction}", 1);
@@ -311,7 +316,9 @@ namespace HBv2_2
                         ///        Exit("Incorrect value given for -m. The value must be an integer or '-'!\nUse --help or read README.md for more information on the syntax!", 1);
                         ///}
 
-                        if (result >= 4)
+                        if (result < 4)
+                            Warn("The given max length for the guesses is smaller than the minimum (4) value therefore, the default (6) value is being used!");
+                        else
                         {
                             maxLength = result;
 
@@ -320,20 +327,23 @@ namespace HBv2_2
                             Console.ForegroundColor = ConsoleColor.DarkYellow;
                             Console.WriteLine(result);
                         }
-                        else Warn("The given max length for the guesses is smaller than the minimum (4) value therefore, the default (6) value is being used!");
 
                         args2.RemoveRange(0, 2);
                         break;
                     case "-o":
-                        if (args2.Count() < 2) 
-                            Warn("No filename was given so it will be save with the default name(s)!");
+                        int k2 = 2;
+                        if (args2.Count() < 2 || (args2.Count() > 1 && args2[1].Contains('-')))
+                        {
+                            Warn("No filename was given, so the results will be saved using the default name!");
+                            k2 = 1;
+                        }
                         else
                         {
                             var prohibited = "#%&{}\\<>*?/ &!'\":@+`|=".ToCharArray();
 
                             var cleaned = new string(args2[1].Where(a => !prohibited.Contains(a)).ToArray());
                             if (cleaned == String.Empty)
-                                Warn("No filename was given so the it will be save with the default name(s)!");
+                                Warn("The filename given only had prohibited characters, so the results will be saved using the default name!");
                             else
                             {
                                 var split = cleaned.Split('.');
@@ -346,17 +356,25 @@ namespace HBv2_2
                                     outputName = cleaned;
                             }
                         }
-                        
-                        argS = true;
-                        args2.RemoveRange(0, 2);
-                        break;
-                    case "-n":
-                        if (!argS)
-                            Exit($"The -o option must be given before the -n option!\n{instruction}", 1);
-                        if (args2.Count() < 2)
+
+                        if (!argnDefValSet)
                         {
                             output = new List<string>[1];
                             output[0] = new List<string>() { "1/1 " };
+                            argnDefValSet = true;
+                        }
+                        argS = true;
+                        args2.RemoveRange(0, k2);
+                        break;
+                    case "-n":
+                        int k3 = 2;
+                        if (!argnDefValSet && args2.Count() < 2)
+                        {
+                            output = new List<string>[1];
+                            output[0] = new List<string>() { "1/1 " };
+
+                            argnDefValSet = true;
+                            k3 = 1;
                         }
                         else
                         {
@@ -367,9 +385,11 @@ namespace HBv2_2
                             output = Enumerable.Range(0, numOfOutputs)
                                                .Select(a => output[a] = new List<string>() { $"m={a} " })
                                                .ToArray();
+
+                            argnDefValSet = true;
                         }
 
-                        args2.RemoveRange(0, 2);
+                        args2.RemoveRange(0, k3);
                         break;
                     ///case "-t":
                     ///
@@ -391,7 +411,9 @@ namespace HBv2_2
             ///    hashToCrack = Console.ReadLine().Split(' ')[0];
             ///} while (hashToCrack == "");
             ///
+
             
+
             Console.ForegroundColor = ConsoleColor.Magenta;
             Console.Write($"Available logical cores: ");
             Console.ForegroundColor = ConsoleColor.Green;
@@ -404,6 +426,8 @@ namespace HBv2_2
             Console.Write("[" + new String(' ', 10) + "]  0%");
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.CursorVisible = false;
+
+            int position = Console.CursorTop;
 
             switch (hashToCrack.Length)
             {
@@ -430,11 +454,12 @@ namespace HBv2_2
             int i = -1;
             while (++i < maxThreads)
             {
-                Console.SetCursorPosition(1, 3);
+                Console.SetCursorPosition(1, position);
 
                 threads.Add(new Thread(Bruteforcer));
                 threads[i].Start(i);
 
+                // Progress tracking line
                 int x = (int)Math.Round((decimal)(i + 1) / maxThreads * 100, 0);
                 var s = new String('-', x / 10);
                 Console.ForegroundColor = ConsoleColor.Cyan;
@@ -449,7 +474,7 @@ namespace HBv2_2
 
                 if (i == maxThreads - 1)
                 {
-                    Console.SetCursorPosition(0, 4);
+                    Console.SetCursorPosition(0, position + 1);
                     Console.CursorVisible = true;
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.WriteLine($"Maximum number of threads have been succesfully allocated!");
