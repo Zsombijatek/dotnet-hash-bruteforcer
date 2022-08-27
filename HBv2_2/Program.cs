@@ -32,9 +32,9 @@ namespace HBv2_2
         static int numOfChars = charsByte.Length;
 
         static int maxLength = 6;
-        static List<int>[] wordCharVals;
-        static int[] currentLengths;
-        static bool[] finishesArray;
+        static List<int>[] wordCharVals = new List<int>[maxThreads].Select(b => b = new List<int>() { 0 }).ToArray();
+        static int[] currentLengths = new int[maxThreads].Select(a => a = 1).ToArray();
+        static bool[] finishesArray = new bool[maxThreads];
         static int finishes = 0;
         static int hashI;
 
@@ -399,19 +399,6 @@ namespace HBv2_2
                         break;
                 }
             }
-            wordCharVals = new List<int>[maxThreads].Select(b => b = new List<int>() { 0 }).ToArray();
-            currentLengths = new int[maxThreads].Select(a => a = 1).ToArray();
-            finishesArray = new bool[maxThreads];
-
-
-            /// For more interaction
-            ///do 
-            ///{
-            ///    Console.Write("Please enter your hash to crack: ");
-            ///    hashToCrack = Console.ReadLine().Split(' ')[0];
-            ///} while (hashToCrack == "");
-            ///
-
             
 
             Console.ForegroundColor = ConsoleColor.Magenta;
@@ -427,7 +414,7 @@ namespace HBv2_2
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.CursorVisible = false;
 
-            int position = Console.CursorTop;
+            int posY = Console.CursorTop;
 
             switch (hashToCrack.Length)
             {
@@ -454,7 +441,7 @@ namespace HBv2_2
             int i = -1;
             while (++i < maxThreads)
             {
-                Console.SetCursorPosition(1, position);
+                Console.SetCursorPosition(1, posY);
 
                 threads.Add(new Thread(Bruteforcer));
                 threads[i].Start(i);
@@ -474,7 +461,7 @@ namespace HBv2_2
 
                 if (i == maxThreads - 1)
                 {
-                    Console.SetCursorPosition(0, position + 1);
+                    Console.SetCursorPosition(0, posY + 1);
                     Console.CursorVisible = true;
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.WriteLine($"Maximum number of threads have been succesfully allocated!");
