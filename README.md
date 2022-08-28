@@ -28,6 +28,7 @@ hash-brute [-i hash] [-m max_length] [-o file_name] [-n fragments] [--help]
 | -m     | max_length| int           | The maximum number of characters the application can use to generate guesses. Optional, if used, must be after -i. |
 | -o     | file_name | string        | Saves the hashes computed in a file with the given name/default name. file_name is optional. |
 | -n     | fragments | int           | The number of files the computed hashes will be distributed between. Optional. If not given, the default value (1) is set. |
+| --help |           |               | Displays the help message that displays an explanation message on the usage/syntax of the program. |
 
 ## <span style="color:#3ca11d">3. How the program works</span>
 
