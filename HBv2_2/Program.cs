@@ -13,6 +13,7 @@ namespace HBv2_2
 
     class Program
     {
+        static string instruction = "Use --help or read README.md for more information on the syntax!";
         static string help = "Usage: hash-brute [option(s)]\n" +
                              " The options are:\n" +
                             $"   {"-i <hash>", -15} The hash to be cracked by the application. Not optional yet.\n" +
@@ -266,7 +267,6 @@ namespace HBv2_2
         static bool argI = false, argS = false;
         static void Main(string[] args)
         {
-            string instruction = "Use --help or read README.md for more information on the syntax!";
 
             // Input parsing v2 // GOALS: [-i <hash>] [-m <maxl>] [-o <filename>] [-n <num of parts>] [-t <hash type> (if -i wasn't specified)] [--help]
             if (args.Length == 0)
