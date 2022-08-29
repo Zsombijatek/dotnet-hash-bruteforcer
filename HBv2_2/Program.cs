@@ -16,8 +16,8 @@ namespace HBv2_2
         static string instruction = "Use --help or read README.md for more information on the syntax!";
         static string help = "Usage: hash-brute [option(s)]\n" +
                              " The options are:\n" +
-                            $"   {"-i <hash>", -15} The hash to be cracked by the application. Not optional yet.\n" +
-                            $"   {"-m <max_length>", -15} The maximum number of characters the application can use to generate guesses. Optional, if used, must be after -i";
+                            $"   {"-i <hash>",-15} The hash to be cracked by the application. Not optional yet.\n" +
+                            $"   {"-m <max_length>",-15} The maximum number of characters the application can use to generate guesses. Optional, if used, must be after -i";
 
         // Threads
         static int maxThreads = Environment.ProcessorCount;
@@ -256,7 +256,7 @@ namespace HBv2_2
             char[] validChars = "0123456789ABCDEF".ToCharArray();
 
             int wrong = hashToCrack.Where(a => !validChars.Contains(a)).Count();
-            if (wrong > 0) 
+            if (wrong > 0)
                 Exit("Invalid hash detected!\nYour hash contains non-hexadecimal values, please check for any typos!", 1);
         }
 
@@ -298,6 +298,26 @@ namespace HBv2_2
                                  .Where(x => x % 2 == 0)
                                  .Select(x => Convert.ToByte(hashToCrack.Substring(x, 2), 16))
                                  .ToArray();
+
+
+                        switch (hashToCrack.Length)
+                        {
+                            case 32:
+                                hashI = 0;
+                                break;
+                            case 40:
+                                hashI = 1;
+                                break;
+                            case 64:
+                                hashI = 2;
+                                break;
+                            case 96:
+                                hashI = 3;
+                                break;
+                            case 128:
+                                hashI = 4;
+                                break;
+                        }
 
                         argI = true;
                         args2.RemoveRange(0, k1);
@@ -399,7 +419,7 @@ namespace HBv2_2
                         break;
                 }
             }
-            
+
 
             Console.ForegroundColor = ConsoleColor.Magenta;
             Console.Write($"Available logical cores: ");
@@ -416,24 +436,6 @@ namespace HBv2_2
 
             int posY = Console.CursorTop;
 
-            switch (hashToCrack.Length)
-            {
-                case 32:
-                    hashI = 0;
-                    break;
-                case 40:
-                    hashI = 1;
-                    break;
-                case 64:
-                    hashI = 2;
-                    break;
-                case 96:
-                    hashI = 3;
-                    break;
-                case 128:
-                    hashI = 4;
-                    break;
-            }
 
             // Timer
             sw.Start();
