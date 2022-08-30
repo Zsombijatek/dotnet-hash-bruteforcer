@@ -2,7 +2,7 @@
   "profiles": {
     "HBv2_2": {
       "commandName": "Project",
-      "commandLineArgs": "-o"
+      "commandLineArgs": "-i f73fcb49a98507a304ec68cf5ea21b9a -o -n 20"
     }
   }
 }

@@ -13,11 +13,14 @@ namespace HBv2_2
 
     class Program
     {
+        static string[] hashTypes = { "MD5", "SHA-1", "SHA-256", "SHA-384", "SHA-512" };
         static string instruction = "Use --help or read README.md for more information on the syntax!";
         static string help = "Usage: hash-brute [option(s)]\n" +
                              " The options are:\n" +
-                            $"   {"-i <hash>",-15} The hash to be cracked by the application. Not optional yet.\n" +
-                            $"   {"-m <max_length>",-15} The maximum number of characters the application can use to generate guesses. Optional, if used, must be after -i";
+                            $"   {"-i <hash>", -15} The hash to be cracked by the application. Optional, but if isn't specified, -o must be given.\n" +
+                            $"   {"-m <max_length>", -15} The maximum number of characters the application can use to generate guesses. Optional, if used, must be after -i.\n" +
+                            $"   {"-o <file_name>", -15} Saves the hashes computed in a file with the given name/default name. file_name is optional.\n" +
+                            $"   {"-n <fragments>", -15} The number of files the computed hashes will be distributed between. Optional.";
 
         // Threads
         static int maxThreads = Environment.ProcessorCount;
@@ -39,8 +42,10 @@ namespace HBv2_2
         static int finishes = 0;
         static int hashI;
 
+        // For output
         static List<string>[] output;
-        static string outputName = "output.txt";
+        static string outputName = "output";
+        static string outputExtension = "txt";
 
         static void Bruteforcer(object i)
         {
@@ -87,7 +92,7 @@ namespace HBv2_2
                 }
 
                 // Save guess and hash to the correct list if requested
-                if (argS)
+                if (argO)
                 {
                     // Distribution between lists if requested with -n option using the modulo approach
                     int m = 0;
@@ -101,13 +106,19 @@ namespace HBv2_2
                     for (int j = 0; j < hashBytes.Length; j++)
                         sb.Append(hashBytes[j].ToString("X2"));
 
-                    output[m].Add($"{new string(guessBytes.Select(a => (char)a).ToArray())} {sb.ToString()}");
+                    lock (output[m])
+                        output[m].Add($"{new string(guessBytes.Select(a => (char)a).ToArray())} {sb.ToString()}");
+                    if (output[m].Count() > 3000000)
+                    {
+                        lock (output[m])
+                            AppendAndClear(m);
+                    }
                 }
 
-                // 2.
+                // Add maxThreads amount to the last characters index
                 wordCharVals[indexOfThr][currentLengths[indexOfThr] - 1] += maxThreads;
 
-                // 3.
+                // Checks
                 if (wordCharVals[indexOfThr][currentLengths[indexOfThr] - 1] >= numOfChars)
                 {
                     wordCharVals[indexOfThr][currentLengths[indexOfThr] - 1] -= numOfChars;
@@ -157,22 +168,12 @@ namespace HBv2_2
         {
             sw.Stop();
 
-            string[] hashTypes = { "MD5", "SHA-1", "SHA-256", "SHA-384", "SHA-512" };
-
-            // Write created guess-hash lists to files
-            if (argS)
+            // Append leftover hashes to files
+            if (argO)
             {
-                var split2 = outputName.Split('.');
-                string extension = split2[split2.Length - 1];
-
-                string fileN = outputName.Substring(0, outputName.Length - extension.Length - 1);
-
+                end = true;
                 for (int i = 0; i < output.Length; i++)
-                {
-                    output[i][0] += "type=" + hashTypes[hashI];
-
-                    File.WriteAllLines($"{fileN}_{i + 1}_of_{output.Length}.{extension}", output[i]);
-                }
+                    AppendAndClear(i);
             }
 
             // Display result
@@ -230,6 +231,7 @@ namespace HBv2_2
             Console.Write("!!! WARNING !!!   ");
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine(msg);
+            Console.ResetColor();
         }
 
         static void Exit(string msg = null, int code = 0)
@@ -256,29 +258,49 @@ namespace HBv2_2
             char[] validChars = "0123456789ABCDEF".ToCharArray();
 
             int wrong = hashToCrack.Where(a => !validChars.Contains(a)).Count();
-            if (wrong > 0)
+            if (wrong > 0) 
                 Exit("Invalid hash detected!\nYour hash contains non-hexadecimal values, please check for any typos!", 1);
+        }
+
+        static void CreateFiles()
+        {
+            int n = output.Length;
+            for (int i = 0; i < n; i++)
+            {
+                output[i][0] += hashTypes[hashI];
+
+                File.WriteAllLines($"{outputName}_{i + 1}_of_{output.Length}.{outputExtension}", output[i]);
+
+                output[i].RemoveAt(0);
+            }
+        }
+
+        static bool end = false;
+        static void AppendAndClear(int i)
+        {
+            if (output[i].Count() <= 3000000 && !end) 
+                return;
+
+            string fileN = $"{outputName}_{i + 1}_of_{output.Length}.{outputExtension}";
+            File.AppendAllLines(fileN, output[i]);
+
+            output[i].Clear();
         }
 
         static string hashToCrack;
         static byte[] hashToCrackBytes;
         static bool displayDone = false;
         static Stopwatch sw = new Stopwatch();
-        static bool argI = false, argS = false;
+        static bool argI = false, argO = false, argN = false;
         static void Main(string[] args)
         {
-
             // Input parsing v2 // GOALS: [-i <hash>] [-m <maxl>] [-o <filename>] [-n <num of parts>] [-t <hash type> (if -i wasn't specified)] [--help]
             if (args.Length == 0)
                 Exit($"No parameters were given.\n{instruction}", 1);
+            if (args.Contains("--help"))
+                Exit(help);
 
             var args2 = new List<string>(args);
-            if (args2.Contains("--help"))
-            {
-                Console.WriteLine(help);
-                Exit();
-            }
-
             bool argnDefValSet = false;
             while (args2.Count > 0)
             {
@@ -292,6 +314,7 @@ namespace HBv2_2
                             k1 = 1;
                         }
 
+                        // Hash validation and conversion
                         hashToCrack = args2[1].ToUpper();
                         CheckHash();
                         hashToCrackBytes = Enumerable.Range(0, hashToCrack.Length)
@@ -299,7 +322,7 @@ namespace HBv2_2
                                  .Select(x => Convert.ToByte(hashToCrack.Substring(x, 2), 16))
                                  .ToArray();
 
-
+                        // Rework?
                         switch (hashToCrack.Length)
                         {
                             case 32:
@@ -324,7 +347,7 @@ namespace HBv2_2
                         break;
                     case "-m":
                         if (!argI)
-                            Exit($"Incorrect usage of -m. The hash you want to crack must be given, before specifying the max length!\n{instruction}", 1);
+                            Exit($"Incorrect usage of -m. The -i option must be given, before specifying the max length!\n{instruction}", 1);
                         if (args2.Count() < 2)
                             Exit($"Incorrect usage of -m. An integer value, which must be at least 4, must be given after -m!\n{instruction}", 1);
                         if (!int.TryParse(args2[1], out int result))
@@ -359,6 +382,7 @@ namespace HBv2_2
                         }
                         else
                         {
+                            // Given filename parsing
                             var prohibited = "#%&{}\\<>*?/ &!'\":@+`|=".ToCharArray();
 
                             var cleaned = new string(args2[1].Where(a => !prohibited.Contains(a)).ToArray());
@@ -368,12 +392,13 @@ namespace HBv2_2
                             {
                                 var split = cleaned.Split('.');
 
-                                if (split.Length == 1)
-                                    outputName = cleaned += ".txt";
-                                else if (split[split.Length - 1] == String.Empty)
-                                    outputName = cleaned += "txt";
-                                else
+                                if (split.Length == 1 || split[split.Length - 1] == String.Empty)
                                     outputName = cleaned;
+                                else
+                                {
+                                    outputExtension = split[split.Length - 1];
+                                    outputName = cleaned.Substring(0, outputName.Length - outputExtension.Length - 1);
+                                }
                             }
                         }
 
@@ -383,10 +408,14 @@ namespace HBv2_2
                             output[0] = new List<string>() { "1/1 " };
                             argnDefValSet = true;
                         }
-                        argS = true;
+
+                        argO = true;
                         args2.RemoveRange(0, k2);
                         break;
                     case "-n":
+                        if (args2.Count() < 2)
+                            Warn("No value was given after -n");
+
                         int k3 = 2;
                         if (!argnDefValSet && args2.Count() < 2)
                         {
@@ -403,12 +432,13 @@ namespace HBv2_2
 
                             output = new List<string>[numOfOutputs];
                             output = Enumerable.Range(0, numOfOutputs)
-                                               .Select(a => output[a] = new List<string>() { $"m={a} " })
+                                               .Select(a => output[a] = new List<string>() { $"{a + 1}/{numOfOutputs} " })
                                                .ToArray();
 
                             argnDefValSet = true;
                         }
 
+                        argN = true;
                         args2.RemoveRange(0, k3);
                         break;
                     ///case "-t":
@@ -419,7 +449,13 @@ namespace HBv2_2
                         break;
                 }
             }
+            if (!argI && !argO)
+                Exit($"-i and -s wasn't given as an argument and one of them must be specified!\n{instruction}", 1);
+            if (argN && !argO)
+                Exit($"When using -n, -s must be given as well!\n{instruction}", 1);
 
+            if (argO)
+                CreateFiles();
 
             Console.ForegroundColor = ConsoleColor.Magenta;
             Console.Write($"Available logical cores: ");
@@ -435,7 +471,6 @@ namespace HBv2_2
             Console.CursorVisible = false;
 
             int posY = Console.CursorTop;
-
 
             // Timer
             sw.Start();
