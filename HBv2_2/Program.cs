@@ -225,12 +225,28 @@ namespace HBv2_2
             }
         }
 
-        static void Warn(string msg)
+        static void Warn(string msg, bool askToContinue = false)
         {
             Console.ForegroundColor = ConsoleColor.Red;
             Console.Write("!!! WARNING !!!   ");
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine(msg);
+
+            if (askToContinue)
+            {
+                Console.ForegroundColor = ConsoleColor.Blue;
+
+                string response;
+                do
+                {
+                    Console.Write("Do you wish to continue? (yes/no): ");
+                    response = Console.ReadLine();
+                } while (response != "yes" && response != "no");
+
+                if (response == "no")
+                    Exit();
+            }
+
             Console.ResetColor();
         }
 
@@ -349,7 +365,7 @@ namespace HBv2_2
                         if (!argI)
                             Exit($"Incorrect usage of -m. The -i option must be given, before specifying the max length!\n{instruction}", 1);
                         if (args2.Count() < 2)
-                            Exit($"Incorrect usage of -m. An integer value, which must be at least 4, must be given after -m!\n{instruction}", 1);
+                            Exit($"Incorrect usage of -m. An integer value, which must be 4-100, must be given after -m!\n{instruction}", 1);
                         if (!int.TryParse(args2[1], out int result))
                         {
                             if (args2[1] == "-")
@@ -418,7 +434,7 @@ namespace HBv2_2
                         break;
                     case "-n":
                         if (args2.Count() < 2)
-                            Warn("No value was given after -n");
+                            Exit($"Incorrect usage of -n. An integer value, which must be 1-1.000.000, must be given after -n!\n{instruction}", 1);
 
                         int k3 = 2;
                         if (!argnDefValSet && args2.Count() < 2)
@@ -433,8 +449,10 @@ namespace HBv2_2
                         {
                             if (!int.TryParse(args2[1], out int numOfOutputs) || numOfOutputs > 1000000)
                                 Exit($"The given value for -n was not an integer or was too big!\n{instruction}", 1);
-                            if (numOfOutputs < 1)
+                            else if (numOfOutputs < 1)
                                 Exit($"The given value for -n was 0 or smaller than zero!\n{instruction}", 1);
+                            else if (numOfOutputs == 1)
+                                Warn("The given value for -n was 1, which is the default value.", true);
 
                             output = new List<string>[numOfOutputs];
                             output = Enumerable.Range(0, numOfOutputs)
