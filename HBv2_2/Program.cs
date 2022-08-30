@@ -18,9 +18,9 @@ namespace HBv2_2
         static string help = "Usage: hash-brute [option(s)]\n" +
                              " The options are:\n" +
                             $"   {"-i <hash>", -15} The hash to be cracked by the application. Optional, but if isn't specified, -o must be given.\n" +
-                            $"   {"-m <max_length>", -15} The maximum number of characters the application can use to generate guesses. Optional, if used, must be after -i.\n" +
+                            $"   {"-m <max_length>", -15} The maximum number of characters the application can use to generate guesses. Optional, if used, must be after -i. Accepted values: 4-100 or '-'.\n" +
                             $"   {"-o <file_name>", -15} Saves the hashes computed in a file with the given name/default name. file_name is optional.\n" +
-                            $"   {"-n <fragments>", -15} The number of files the computed hashes will be distributed between. Optional.";
+                            $"   {"-n <fragments>", -15} The number of files the computed hashes will be distributed between. Optional. Accepted values: 1-1.000.000.";
 
         // Threads
         static int maxThreads = Environment.ProcessorCount;
@@ -351,16 +351,20 @@ namespace HBv2_2
                         if (args2.Count() < 2)
                             Exit($"Incorrect usage of -m. An integer value, which must be at least 4, must be given after -m!\n{instruction}", 1);
                         if (!int.TryParse(args2[1], out int result))
-                            Exit($"Incorrect value given for -m. The value must be an integer!\n{instruction}", 1);
-                        ///{ For later use, when "unlimited" maxLength will be introduced.
-                        ///    if (args2[1] == "-") 
-                        ///        maxLength = Int32.MaxValue;
-                        ///    else 
-                        ///        Exit("Incorrect value given for -m. The value must be an integer or '-'!\nUse --help or read README.md for more information on the syntax!", 1);
-                        ///}
+                        {
+                            if (args2[1] == "-")
+                                maxLength = 200;
+                            else
+                                Exit($"Incorrect value given for -m. The value must be an integer (4-200) or '-'!\n{instruction}", 1);
+                        }
 
                         if (result < 4)
-                            Warn("The given max length for the guesses is smaller than the minimum (4) value therefore, the default (6) value is being used!");
+                            Warn("The given max length is smaller than the minimum value (4) therefore, the default (6) value is being used!");
+                        else if (result > 100)
+                        {
+                            Warn("The given max length is bigger than the maximum value (100) therefore, the maximum value is being used!\nDon't worry, you'll probably never reach 100 character guesses.");
+                            maxLength = 100;
+                        }
                         else
                         {
                             maxLength = result;
@@ -427,8 +431,10 @@ namespace HBv2_2
                         }
                         else
                         {
-                            if (!int.TryParse(args2[1], out int numOfOutputs))
-                                Exit($"The given value for -n was not an integer!\n{instruction}", 1);
+                            if (!int.TryParse(args2[1], out int numOfOutputs) || numOfOutputs > 1000000)
+                                Exit($"The given value for -n was not an integer or was too big!\n{instruction}", 1);
+                            if (numOfOutputs < 1)
+                                Exit($"The given value for -n was 0 or smaller than zero!\n{instruction}", 1);
 
                             output = new List<string>[numOfOutputs];
                             output = Enumerable.Range(0, numOfOutputs)
