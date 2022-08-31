@@ -25,9 +25,9 @@ hash-brute [-i hash] [-m max_length] [-o file_name] [-n fragments] [--help]
 | Option | Argument  | Variable type | Description |
 | ------ | --------- | ------------- | ----------- |
 | -i     | hash      | string        | The hash to be cracked by the program. Optional, but if isn't specified, -o must be. Currently accepted types: MD5, SHA1, SHA256, SHA384, SHA512 |
-| -m     | max_length| int           | The maximum number of characters the application can use to generate guesses. Optional, if used, must be after -i. |
+| -m     | max_length| int/string    | The maximum number of characters the application can use to generate guesses. Optional, if used, must be after -i. Accepted values: 4-100 or -. Default value: 6. |
 | -o     | file_name | string        | Saves the hashes computed in a file with the given name/default name. file_name is optional. |
-| -n     | fragments | int           | The number of files the computed hashes will be distributed between. Optional. If not given, the default value (1) is set. |
+| -n     | fragments | int           | The number of files the computed hashes will be distributed between. Optional. Accepted values: 1-1.000.000. Default value: 1|
 | --help |           |               | Displays the help message that displays an explanation message on the usage/syntax of the program. |
 
 ## <span style="color:#3ca11d">3. How the program works</span>
