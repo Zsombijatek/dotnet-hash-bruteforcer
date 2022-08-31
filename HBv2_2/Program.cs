@@ -307,7 +307,7 @@ namespace HBv2_2
         static byte[] hashToCrackBytes;
         static bool displayDone = false;
         static Stopwatch sw = new Stopwatch();
-        static bool argI = false, argO = false, argN = false;
+        static bool argI = false, argO = false, argN = false, argT = false;
         static void Main(string[] args)
         {
             // Input parsing v2 // GOALS: [-i <hash>] [-m <maxl>] [-o <filename>] [-n <num of parts>] [-t <hash type> (if -i wasn't specified)] [--help]
@@ -323,6 +323,9 @@ namespace HBv2_2
                 switch (args2[0])
                 {
                     case "-i":
+                        if (argT)
+                            Exit($"Incorrect usage of -i, it shouldn't be used when -t is given as an argument!\n{instruction}", 1) ;
+
                         int k1 = 2;
                         if (args2.Count() < 2)
                         {
@@ -338,7 +341,6 @@ namespace HBv2_2
                                  .Select(x => Convert.ToByte(hashToCrack.Substring(x, 2), 16))
                                  .ToArray();
 
-                        // Rework?
                         switch (hashToCrack.Length)
                         {
                             case 32:
@@ -465,18 +467,50 @@ namespace HBv2_2
                         argN = true;
                         args2.RemoveRange(0, k3);
                         break;
-                    ///case "-t":
-                    ///
-                    ///    break;
+                    case "-t":
+                        if (argI)
+                            Exit($"Incorrect usage of -t, it shouldn't be used when -i is given as an argument!\n{instruction}", 1);
+                        if (args2.Count() < 2)
+                            Exit($"No parameter was given for -t argument!\n{instruction}", 1);
+
+                        switch (args2[1])
+                        {
+                            case "MD5":
+                                hashI = 0;
+                                break;
+                            case "SHA1":
+                                hashI = 1;
+                                break;
+                            case "SHA256":
+                                hashI = 2;
+                                break;
+                            case "SHA384":
+                                hashI = 3;
+                                break;
+                            case "SHA512":
+                                hashI = 4;
+                                break;
+                            default:
+                                Exit($"Invalid value was given for -t!\nAccepted values: MD5, SHA1, SHA256, SHA384, SHA512\n{instruction}", 1);
+                                break;
+                        }
+
+                        argT = true;
+                        args2.RemoveRange(0, 2);
+                        break;
                     default:
                         Exit($"Invalid arguments were given.\n{instruction}", 1);
                         break;
                 }
             }
             if (!argI && !argO)
-                Exit($"-i and -s wasn't given as an argument and one of them must be specified!\n{instruction}", 1);
+                Exit($"-i and -o wasn't given as an argument and one of them must be specified!\n{instruction}", 1);
             if (argN && !argO)
-                Exit($"When using -n, -s must be given as well!\n{instruction}", 1);
+                Exit($"When using the -n option, -o must be used as well!\n{instruction}", 1);
+            if (argT && !argO)
+                Exit($"When using the -t option, -o must be used as well!\n{instruction}", 1);
+            if (argO && !argT)
+                Exit($"When using the -o option, -t must be used as well!\n{instruction}", 1);
 
             if (argO)
                 CreateFiles();
