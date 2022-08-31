@@ -322,7 +322,7 @@ namespace HBv2_2
             {
                 switch (args2[0])
                 {
-                    case "-i":
+                    case "-i": // -------
                         if (argT)
                             Exit($"Incorrect usage of -i, it shouldn't be used when -t is given as an argument!\n{instruction}", 1) ;
 
@@ -363,7 +363,7 @@ namespace HBv2_2
                         argI = true;
                         args2.RemoveRange(0, k1);
                         break;
-                    case "-m":
+                    case "-m": // -------
                         if (!argI)
                             Exit($"Incorrect usage of -m. The -i option must be given, before specifying the max length!\n{instruction}", 1);
                         if (args2.Count() < 2)
@@ -395,7 +395,7 @@ namespace HBv2_2
 
                         args2.RemoveRange(0, 2);
                         break;
-                    case "-o":
+                    case "-o": // -------
                         int k2 = 2;
                         if (args2.Count() < 2 || (args2.Count() > 1 && args2[1].Contains('-')))
                         {
@@ -434,7 +434,7 @@ namespace HBv2_2
                         argO = true;
                         args2.RemoveRange(0, k2);
                         break;
-                    case "-n":
+                    case "-n": // -------
                         if (args2.Count() < 2)
                             Exit($"Incorrect usage of -n. An integer value, which must be 1-1.000.000, must be given after -n!\n{instruction}", 1);
 
@@ -467,7 +467,7 @@ namespace HBv2_2
                         argN = true;
                         args2.RemoveRange(0, k3);
                         break;
-                    case "-t":
+                    case "-t": // -------
                         if (argI)
                             Exit($"Incorrect usage of -t, it shouldn't be used when -i is given as an argument!\n{instruction}", 1);
                         if (args2.Count() < 2)
@@ -498,7 +498,7 @@ namespace HBv2_2
                         argT = true;
                         args2.RemoveRange(0, 2);
                         break;
-                    default:
+                    default: // -------
                         Exit($"Invalid arguments were given.\n{instruction}", 1);
                         break;
                 }
@@ -515,6 +515,7 @@ namespace HBv2_2
             if (argO)
                 CreateFiles();
 
+            // Giving information on status to user
             Console.ForegroundColor = ConsoleColor.Magenta;
             Console.Write($"Available logical cores: ");
             Console.ForegroundColor = ConsoleColor.Green;
@@ -547,6 +548,7 @@ namespace HBv2_2
                 Console.ForegroundColor = ConsoleColor.Cyan;
                 Console.Write(s);
 
+                // Progress tracking percentage
                 Console.CursorLeft = 14;
                 if (x <= 25) Console.ForegroundColor = ConsoleColor.DarkYellow;
                 else if (x <= 50) Console.ForegroundColor = ConsoleColor.Yellow;
