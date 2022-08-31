@@ -18,9 +18,10 @@ namespace HBv2_2
         static string help = "Usage: hash-brute [option(s)]\n" +
                              " The options are:\n" +
                             $"   {"-i <hash>", -15} The hash to be cracked by the application. Optional, but if isn't specified, -o must be given.\n" +
-                            $"   {"-m <max_length>", -15} The maximum number of characters the application can use to generate guesses. Optional, if used, must be after -i. Accepted values: 4-100 or -.\n" +
-                            $"   {"-o <file_name>", -15} Saves the hashes computed in a file with the given name/default name. file_name is optional.\n" +
-                            $"   {"-n <fragments>", -15} The number of files the computed hashes will be distributed between. Optional. Accepted values: 1-1.000.000.";
+                            $"   {"-m <max length>", -15} The maximum number of characters the application can use to generate guesses. Optional, if used, must be after -i. Accepted values: 4-100 or -.\n" +
+                            $"   {"-o <file name>", -15} Saves the hashes computed in a file with the given name/default name. file_name is optional.\n" +
+                            $"   {"-n <fragments>", -15} The number of files the computed hashes will be distributed between. Optional. Accepted values: 1-1.000.000.\n" +
+                            $"   {"-t <hash type>", -15} The type of hashes to be generated indefinitely. Mandatory, if only -o is used. Cannot be used, if -i and -o are both used. Accepted values: MD5, SHA1, SHA256, SHA384, SHA512.";
 
         // Threads
         static int maxThreads = Environment.ProcessorCount;

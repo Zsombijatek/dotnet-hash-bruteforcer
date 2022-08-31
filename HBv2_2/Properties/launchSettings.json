@@ -2,7 +2,7 @@
   "profiles": {
     "HBv2_2": {
       "commandName": "Project",
-      "commandLineArgs": "-o xd -t MD5"
+      "commandLineArgs": "-o xd -t MD5 --help"
     }
   }
 }
