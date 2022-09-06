@@ -308,7 +308,7 @@ namespace HBv2_2
         static byte[] hashToCrackBytes;
         static bool displayDone = false;
         static Stopwatch sw = new Stopwatch();
-        static bool argI = false, argO = false, argN = false, argT = false;
+        static bool argI = false, argO = false, argN = false, argT = false, argM = false;
         static void Main(string[] args)
         {
             // Input parsing v2 // GOALS: [-i <hash>] [-m <maxl>] [-o <filename>] [-n <num of parts>] [-t <hash type> (if -i wasn't specified)] [--help]
@@ -436,20 +436,20 @@ namespace HBv2_2
                         args2.RemoveRange(0, k2);
                         break;
                     case "-n": // -------
-                        if (args2.Count() < 2)
-                            Exit($"Incorrect usage of -n. An integer value, which must be 1-1.000.000, must be given after -n!\n{instruction}", 1);
-
+                        if (args2.Count() < 2 || (args2.Count() > 1 && args2[1].Contains('-')))
+                            Exit($"Incorrect usage of -n. An integer value, which must be in the 1-1.000.000 range, must be given after -n!\n{instruction}", 1);
+                        
                         int k3 = 2;
-                        if (!argnDefValSet && args2.Count() < 2)
-                        {
-                            output = new List<string>[1];
-                            output[0] = new List<string>() { "1/1 " };
+                        //if (!argnDefValSet && args2.Count() < 2)
+                        //{
+                        //    output = new List<string>[1];
+                        //    output[0] = new List<string>() { "1/1 " };
 
-                            argnDefValSet = true;
-                            k3 = 1;
-                        }
-                        else
-                        {
+                        //    argnDefValSet = true;
+                        //    k3 = 1;
+                        //}
+                        //else
+                        //{
                             if (!int.TryParse(args2[1], out int numOfOutputs) || numOfOutputs > 1000000)
                                 Exit($"The given value for -n was not an integer or was too big!\n{instruction}", 1);
                             else if (numOfOutputs < 1)
@@ -463,7 +463,7 @@ namespace HBv2_2
                                                .ToArray();
 
                             argnDefValSet = true;
-                        }
+                        //}
 
                         argN = true;
                         args2.RemoveRange(0, k3);
