@@ -308,7 +308,7 @@ namespace HBv2_2
         static byte[] hashToCrackBytes;
         static bool displayDone = false;
         static Stopwatch sw = new Stopwatch();
-        static bool argI = false, argO = false, argN = false, argT = false;
+        static bool argI = false, argO = false, argN = false, argT = false, argM = false;
         static void Main(string[] args)
         {
             // Input parsing v2 // GOALS: [-i <hash>] [-m <maxl>] [-o <filename>] [-n <num of parts>] [-t <hash type> (if -i wasn't specified)] [--help]
@@ -324,6 +324,8 @@ namespace HBv2_2
                 switch (args2[0])
                 {
                     case "-i": // -------
+                        if (argI)
+                            Exit($"Incorrect usage of syntax, each option can be only given once!\n{instruction}", 1);
                         if (argT)
                             Exit($"Incorrect usage of -i, it shouldn't be used when -t is given as an argument!\n{instruction}", 1) ;
 
@@ -365,6 +367,8 @@ namespace HBv2_2
                         args2.RemoveRange(0, k1);
                         break;
                     case "-m": // -------
+                        if (argM)
+                            Exit($"Incorrect usage of syntax, each option can be only given once!\n{instruction}", 1);
                         if (!argI)
                             Exit($"Incorrect usage of -m. The -i option must be given, before specifying the max length!\n{instruction}", 1);
                         if (args2.Count() < 2)
@@ -394,9 +398,13 @@ namespace HBv2_2
                             Console.WriteLine(result);
                         }
 
+                        argM = true;
                         args2.RemoveRange(0, 2);
                         break;
                     case "-o": // -------
+                        if (argO)
+                            Exit($"Incorrect usage of syntax, each option can be only given once!\n{instruction}", 1);
+
                         int k2 = 2;
                         if (args2.Count() < 2 || (args2.Count() > 1 && args2[1].Contains('-')))
                         {
@@ -436,6 +444,8 @@ namespace HBv2_2
                         args2.RemoveRange(0, k2);
                         break;
                     case "-n": // -------
+                        if (argN)
+                            Exit($"Incorrect usage of syntax, each option can be only given once!\n{instruction}", 1);
                         if (args2.Count() < 2)
                             Exit($"Incorrect usage of -n. An integer value, which must be 1-1.000.000, must be given after -n!\n{instruction}", 1);
 
@@ -469,6 +479,8 @@ namespace HBv2_2
                         args2.RemoveRange(0, k3);
                         break;
                     case "-t": // -------
+                        if (argT)
+                            Exit($"Incorrect usage of syntax, each option can be only given once!\n{instruction}", 1);
                         if (argI)
                             Exit($"Incorrect usage of -t, it shouldn't be used when -i is given as an argument!\n{instruction}", 1);
                         if (args2.Count() < 2)
