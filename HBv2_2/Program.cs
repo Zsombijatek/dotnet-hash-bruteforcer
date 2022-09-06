@@ -324,6 +324,8 @@ namespace HBv2_2
                 switch (args2[0])
                 {
                     case "-i": // -------
+                        if (argI)
+                            Exit($"Incorrect usage of syntax, each option can be only given once!\n{instruction}", 1);
                         if (argT)
                             Exit($"Incorrect usage of -i, it shouldn't be used when -t is given as an argument!\n{instruction}", 1) ;
 
@@ -365,6 +367,8 @@ namespace HBv2_2
                         args2.RemoveRange(0, k1);
                         break;
                     case "-m": // -------
+                        if (argM)
+                            Exit($"Incorrect usage of syntax, each option can be only given once!\n{instruction}", 1);
                         if (!argI)
                             Exit($"Incorrect usage of -m. The -i option must be given, before specifying the max length!\n{instruction}", 1);
                         if (args2.Count() < 2)
@@ -394,9 +398,13 @@ namespace HBv2_2
                             Console.WriteLine(result);
                         }
 
+                        argM = true;
                         args2.RemoveRange(0, 2);
                         break;
                     case "-o": // -------
+                        if (argO)
+                            Exit($"Incorrect usage of syntax, each option can be only given once!\n{instruction}", 1);
+
                         int k2 = 2;
                         if (args2.Count() < 2 || (args2.Count() > 1 && args2[1].Contains('-')))
                         {
@@ -436,9 +444,11 @@ namespace HBv2_2
                         args2.RemoveRange(0, k2);
                         break;
                     case "-n": // -------
+                        if (argN)
+                            Exit($"Incorrect usage of syntax, each option can be only given once!\n{instruction}", 1);
                         if (args2.Count() < 2 || (args2.Count() > 1 && args2[1].Contains('-')))
                             Exit($"Incorrect usage of -n. An integer value, which must be in the 1-1.000.000 range, must be given after -n!\n{instruction}", 1);
-                        
+
                         int k3 = 2;
                         //if (!argnDefValSet && args2.Count() < 2)
                         //{
@@ -469,6 +479,8 @@ namespace HBv2_2
                         args2.RemoveRange(0, k3);
                         break;
                     case "-t": // -------
+                        if (argT)
+                            Exit($"Incorrect usage of syntax, each option can be only given once!\n{instruction}", 1);
                         if (argI)
                             Exit($"Incorrect usage of -t, it shouldn't be used when -i is given as an argument!\n{instruction}", 1);
                         if (args2.Count() < 2)
