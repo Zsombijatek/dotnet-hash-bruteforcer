@@ -327,7 +327,7 @@ namespace HBv2_2
                         if (argI)
                             Exit($"Incorrect usage of syntax, each option can be only given once!\n{instruction}", 1);
                         if (argT)
-                            Exit($"Incorrect usage of -i, it shouldn't be used when -t is given as an argument!\n{instruction}", 1) ;
+                            Exit($"Incorrect usage of -i, it shouldn't be used when -t is given as an argument!\n{instruction}", 1);
 
                         int k1 = 2;
                         if (args2.Count() < 2)
@@ -450,31 +450,19 @@ namespace HBv2_2
                             Exit($"Incorrect usage of -n. An integer value, which must be in the 1-1.000.000 range, must be given after -n!\n{instruction}", 1);
 
                         int k3 = 2;
-                        //if (!argnDefValSet && args2.Count() < 2)
-                        //{
-                        //    output = new List<string>[1];
-                        //    output[0] = new List<string>() { "1/1 " };
+                        if (!int.TryParse(args2[1], out int numOfOutputs) || numOfOutputs > 1000000)
+                            Exit($"The given value for -n was not an integer or was too big!\n{instruction}", 1);
+                        else if (numOfOutputs < 1)
+                            Exit($"The given value for -n was 0 or smaller than zero!\n{instruction}", 1);
+                        else if (numOfOutputs == 1)
+                            Warn("The given value for -n was 1, which is the default value.", true);
 
-                        //    argnDefValSet = true;
-                        //    k3 = 1;
-                        //}
-                        //else
-                        //{
-                            if (!int.TryParse(args2[1], out int numOfOutputs) || numOfOutputs > 1000000)
-                                Exit($"The given value for -n was not an integer or was too big!\n{instruction}", 1);
-                            else if (numOfOutputs < 1)
-                                Exit($"The given value for -n was 0 or smaller than zero!\n{instruction}", 1);
-                            else if (numOfOutputs == 1)
-                                Warn("The given value for -n was 1, which is the default value.", true);
+                        output = new List<string>[numOfOutputs];
+                        output = Enumerable.Range(0, numOfOutputs)
+                                           .Select(a => output[a] = new List<string>() { $"{a + 1}/{numOfOutputs} " })
+                                           .ToArray();
 
-                            output = new List<string>[numOfOutputs];
-                            output = Enumerable.Range(0, numOfOutputs)
-                                               .Select(a => output[a] = new List<string>() { $"{a + 1}/{numOfOutputs} " })
-                                               .ToArray();
-
-                            argnDefValSet = true;
-                        //}
-
+                        argnDefValSet = true;
                         argN = true;
                         args2.RemoveRange(0, k3);
                         break;
