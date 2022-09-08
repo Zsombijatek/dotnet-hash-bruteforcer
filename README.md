@@ -1,6 +1,6 @@
 # <span style="color:#e6a40b">.NET Hash Bruteforcer</span>
 
-> <span style="font-size: 15px">A project to excercise and solve new problems that are found along the way of making the application.</span>
+> <span style="font-size: 15px">A project to <span style="color:#3ca11d">exercise</span> and <span style="color:#3ca11d">solve new problems</span> that are found along the way of making the application.</span>
 
 
 ## <span style="color:#3ca11d">1. Description of the program</span>
@@ -27,7 +27,7 @@ hash-brute [-i hash] [-m max_length] [-o file_name] [-n fragments] [--help]
 | -i     | hash      | string        | The hash to be cracked by the program. Optional, but if isn't specified, -o must be. Currently accepted types: MD5, SHA1, SHA256, SHA384, SHA512 |
 | -m     | max length| int/string    | The maximum number of characters the application can use to generate guesses. Optional, if used, must be after -i. Accepted values: 4-100 or -. Default value: 6. |
 | -o     | file name | string        | Saves the hashes computed in a file with the given name/default name. file_name is optional. |
-| -n     | fragments | int           | The number of files the computed hashes will be distributed between. Optional. Accepted values: 1-1.000.000. Default value: 1|
+| -n     | fragments | int           | The number of files the computed hashes will be distributed between. Optional. Accepted values: 1-1.000.000. Default value: 1 |
 | -t     | hash type | string        | The type of hashes to be generated indefinitely. Mandatory if only -o is used. Cannot be used, if -i and -o are both used. Accepted values: MD5, SHA1, SHA256, SHA384, SHA512. |
 | --help |           |               | Displays the help message that displays an explanation message on the usage/syntax of the program. |
 
