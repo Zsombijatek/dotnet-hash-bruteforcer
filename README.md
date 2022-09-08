@@ -1,6 +1,6 @@
 # <span style="color:#e6a40b">.NET Hash Bruteforcer</span>
 
-> A project to excercise and solve new problems that are found along the way of making the application.
+> <span style="font-size: 15px">A project to excercise and solve new problems that are found along the way of making the application.</span>
 
 
 ## <span style="color:#3ca11d">1. Description of the program</span>
